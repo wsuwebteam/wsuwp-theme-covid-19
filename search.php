@@ -20,7 +20,15 @@
 
 		<?php do_action( 'spine_theme_template_before_articles', 'search.php' ); ?>
 
+		<h1>Search</h1>
+
 		<?php get_search_form(); ?>
+
+		<h2 class="wsuwp-t-covid__search__results__heading">Results</h2>
+
+		<div class="wsuwp-t-covid__search__results__wrapper">
+
+		<?php if ( have_posts() ) : ?>
 
 		<?php while ( have_posts() ) : the_post(); ?>
 
@@ -28,7 +36,14 @@
 
 		<?php endwhile; ?>
 
+		<?php else : ?>
+
+		<?php wsuwp_spine_get_template_part( 'page.php', 'articles/no-results' ); ?>
+
+		<?php endif; ?>
+
 		<?php do_action( 'spine_theme_template_after_articles', 'search.php' ); ?>
+		</div>
 
 	</div><!--/column-->
 

@@ -145,6 +145,10 @@
 			</div><!-- .author-description -->
 		</div><!-- .author-info -->
 	<?php endif; ?>
+	<?php if ( is_active_sidebar( 'article-footer' ) ) : ?>
+    <div class="wsu-t-covid__article-footer">
+        <?php dynamic_sidebar( 'article-footer' ); ?>
+	</div>
+	<?php endif; ?>
 	</footer><!-- .entry-meta -->
-
 </article>
