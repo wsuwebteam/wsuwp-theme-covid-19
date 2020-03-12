@@ -17,3 +17,6 @@ function wsuwp_t_covid_add_sidebars() {
 
 
 add_action( 'widgets_init', 'wsuwp_t_covid_add_sidebars' );
+
+require_once __DIR__ . '/includes/include-email-digest.php';
+require_once __DIR__ . '/includes/include-email-shortcodes.php';
