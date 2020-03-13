@@ -163,16 +163,6 @@ class Email_Digest {
 				'empty_posts'     => isset( $_REQUEST['empty_posts'] ) ? sanitize_text_field( $_REQUEST['empty_posts'] ) : '',
 			);
 
-			if ( $values['send_time'] !== $options['send_time'] ) {
-
-				wp_unschedule_hook( 'wsuwp_covide_email_schedule' );
-
-				$time = $values['send_time'] . ':00:00';
-
-				//wp_schedule_event( strtotime( $time ), 'daily', 'wsuwp_covide_email_schedule' );
-
-			}
-
 			update_option( self::get( 'option_key' ), $values, 'no' );
 
 		} // End if
@@ -205,6 +195,7 @@ class Email_Digest {
 		include get_stylesheet_directory() . '/template-parts/admin/form-email-options.php';
 
 	}
+
 
 	public static function render_email( $echo = true, $options = false ) {
 
@@ -290,111 +281,6 @@ class Email_Digest {
 		wp_reset_postdata();
 
 		return $posts;
-
-	}
-
-
-	protected static function parse_content( $content, $options ) {
-
-		$content = stripslashes( $content );
-
-		$posts = self::get_posts( array( 'cat' => '538' ) );
-		$academics = self::get_posts( array( 'cat' => '545,543' ) );
-		$faqs = self::get_posts( array( 'cat' => '539' ) );
-
-		self::parse_post_content( $posts, $content, $options );
-		self::parse_faq_content( $faqs, $content, $options );
-		self::parse_academics_content( $academics, $content, $options );
-
-		$content = str_replace( '[date_month]', current_time( 'F' ), $content );
-		$content = str_replace( '[date_day]', current_time( 'j' ), $content );
-		$content = str_replace( '[date_day_name]', current_time( 'l' ), $content );
-
-		return $content;
-
-	}
-
-
-	protected static function parse_post_content( $posts, &$content, $options) {
-
-		$post_content = '';
-
-		$pattern = '/\[\/?posts\]/';
-
-		$template_parts = preg_split( $pattern, $content );
-
-		$header          = ( ! empty( $template_parts[0] ) ) ? $template_parts[0] : '';
-		$post_template   = ( ! empty( $template_parts[1] ) ) ? $template_parts[1] : '';
-		$footer          = ( ! empty( $template_parts[2] ) ) ? $template_parts[2] : '';
-
-		foreach ( $posts as $post ) {
-
-			$post_content .= self::do_merge_tags( $post, $post_template );
-
-		}
-
-		$content = $header . $post_content . $footer;
-
-	}
-
-	protected static function parse_academics_content( $posts, &$content, $options) {
-
-		$post_content = '';
-
-		$pattern = '/\[\/?academics\]/';
-
-		$template_parts = preg_split( $pattern, $content );
-
-		$header          = ( ! empty( $template_parts[0] ) ) ? $template_parts[0] : '';
-		$post_template   = ( ! empty( $template_parts[1] ) ) ? $template_parts[1] : '';
-		$footer          = ( ! empty( $template_parts[2] ) ) ? $template_parts[2] : '';
-
-		foreach ( $posts as $post ) {
-
-			$post_content .= self::do_merge_tags( $post, $post_template );
-
-		}
-
-		$content = $header . $post_content . $footer;
-
-	}
-
-
-	protected static function parse_faq_content( $posts, &$content, $options) {
-
-		$post_content = '';
-
-		$pattern = '/\[\/?faqs\]/';
-
-		$template_parts = preg_split( $pattern, $content );
-
-		$header          = ( ! empty( $template_parts[0] ) ) ? $template_parts[0] : '';
-		$post_template   = ( ! empty( $template_parts[1] ) ) ? $template_parts[1] : '';
-		$footer          = ( ! empty( $template_parts[2] ) ) ? $template_parts[2] : '';
-
-		foreach ( $posts as $post ) {
-
-			$post_content .= self::do_merge_tags( $post, $post_template );
-
-		}
-
-		$content = $header . $post_content . $footer;
-
-	}
-
-
-	protected static function do_merge_tags( $post, $template ) {
-
-		$template = str_replace( '[date_month]', current_time( 'F' ), $template );
-		$template = str_replace( '[date_day]', current_time( 'j' ), $template );
-		$template = str_replace( '[date_day_name]', current_time( 'l' ), $template );
-		$template = str_replace( '[post_title]', $post['title'], $template );
-		$template = str_replace( '[post_link]', $post['link'], $template );
-		$template = str_replace( '[post_excerpt]', $post['excerpt'], $template );
-		$template = str_replace( '[post_content]', $post['content'], $template );
-		$template = str_replace( '[post_date]', $post['date'], $template );
-
-		return $template;
 
 	}
 
