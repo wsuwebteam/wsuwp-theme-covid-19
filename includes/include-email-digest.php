@@ -15,6 +15,7 @@ class Email_Digest {
 		'send_from_title' => 'WSU COVID-19 Communications',
 		'subject'         => 'Daily Updates',
 		'send_time'       => '',
+		'empty_posts'     => '',
 	);
 
 
@@ -159,6 +160,7 @@ class Email_Digest {
 				'send_from_title' => isset( $_REQUEST['send_from_title'] ) ? sanitize_text_field( $_REQUEST['send_from_title'] ) : '',
 				'subject'         => isset( $_REQUEST['subject'] ) ? sanitize_text_field( $_REQUEST['subject'] ) : '',
 				'send_time'       => isset( $_REQUEST['send_time'] ) ? sanitize_text_field( $_REQUEST['send_time'] ) : '',
+				'empty_posts'     => isset( $_REQUEST['empty_posts'] ) ? sanitize_text_field( $_REQUEST['empty_posts'] ) : '',
 			);
 
 			if ( $values['send_time'] !== $options['send_time'] ) {
@@ -254,6 +256,8 @@ class Email_Digest {
 			unset( $args['cat'] );
 
 		}
+
+		Email_Shortcodes::add_post_shortcodes();
 
 		$the_query = new \WP_Query( $args );
 

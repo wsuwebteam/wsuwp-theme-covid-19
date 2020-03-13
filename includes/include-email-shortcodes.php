@@ -10,10 +10,6 @@ class Email_Shortcodes {
 
 	public static function add_shortcodes() {
 
-		add_shortcode( 'e_post_title', __CLASS__ . '::do_shortcode_post_title' );
-		add_shortcode( 'e_post_link', __CLASS__ . '::do_shortcode_post_link' );
-		add_shortcode( 'e_post_content', __CLASS__ . '::do_shortcode_post_content' );
-		add_shortcode( 'e_post_excerpt', __CLASS__ . '::do_shortcode_post_excerpt' );
 		add_shortcode( 'e_post_feed', __CLASS__ . '::do_shortcode_post_feed' );
 		add_shortcode( 'e_has_posts', __CLASS__ . '::do_shortcode_has_posts' );
 		add_shortcode( 'e_date', __CLASS__ . '::do_shortcode_date' );
@@ -24,15 +20,36 @@ class Email_Shortcodes {
 	}
 
 
+	public static function add_post_shortcodes() {
+
+		add_shortcode( 'e_post_title', __CLASS__ . '::do_shortcode_post_title' );
+		add_shortcode( 'e_post_link', __CLASS__ . '::do_shortcode_post_link' );
+		add_shortcode( 'e_post_content', __CLASS__ . '::do_shortcode_post_content' );
+		add_shortcode( 'e_post_excerpt', __CLASS__ . '::do_shortcode_post_excerpt' );
+
+	}
+
+
 	public static function do_shortcode_post_title( $atts ) {
 
 		return get_the_title();
 
 	}
 
-	public static function do_shortcode_post_link( $atts ) {
+	public static function do_shortcode_post_link( $atts, $content ) {
 
-		return get_the_permalink();
+		$default_atts = array(
+			'classes' => 'wsu-c-email__link',
+			'style' => '',
+		);
+
+		$atts = shortcode_atts( $default_atts, $atts );
+
+		$link = get_the_permalink();
+
+		$content = do_shortcode( $content );
+
+		return '<a class="' . $atts['classes'] . '" href="' . $link . '" style="' . $atts['style'] . '">' . $content . '</a>';
 
 	}
 
@@ -61,13 +78,26 @@ class Email_Shortcodes {
 	public static function do_shortcode_post_feed( $atts, $template ) {
 
 		$content = '';
+
+		$options = Email_Digest::get_options();
+
+		$options_atts['empty_posts_text'] = $options['empty_posts'];
+
+		if ( ! is_array( $atts ) ) {
+
+			$atts = array();
+
+		}
+
+		$atts = array_merge( $options_atts, $atts );
 		
 		$query = self::get_query( $atts );
 
 		$the_query = new \WP_Query( $query );
 
-		if ( $the_query->have_posts() ) {
+		self::add_post_shortcodes();
 
+		if ( $the_query->have_posts() ) {
 
 			while ( $the_query->have_posts() ) {
 
@@ -78,6 +108,10 @@ class Email_Shortcodes {
 				$content .= do_shortcode( $template );
 
 			}
+		} else {
+
+			$content .= '<p>' . $atts['empty_posts_text'] . '</p>';
+
 		}
 
 		wp_reset_postdata();
@@ -89,7 +123,7 @@ class Email_Shortcodes {
 
 	public static function do_shortcode_has_posts( $atts, $template ) {
 
-		$content = '';
+		$content = ' ';
 		
 		$query = self::get_query( $atts );
 
@@ -122,7 +156,7 @@ class Email_Shortcodes {
 				$default_atts['format'] = 'j';
 				break;
 			case 'e_date_day_name':
-				$default_atts['format'] = 'F';
+				$default_atts['format'] = 'l';
 				break;
 		}
 
@@ -136,12 +170,14 @@ class Email_Shortcodes {
 	protected static function get_query( $atts ) {
 
 		$default_atts = array(
-			'categories' => '',
-			'exclude'    => '',
-			'orderby'    => 'date',
-			'order'      => 'DESC',
-			'count'      => '20',
-			'by_time'    => '',
+			'categories'         => '',
+			'exclude_categories' => '',
+			'orderby'            => 'date',
+			'order'              => 'DESC',
+			'count'              => '20',
+			'by_time'            => '',
+			'post_ids'           => '',
+			'exclude_post_ids'   => '',
 		);
 
 		$atts = shortcode_atts( $default_atts, $atts );
@@ -154,6 +190,18 @@ class Email_Shortcodes {
 			'posts_per_page' => $atts['count'],
 		);
 
+		if ( ! empty( $atts['post_ids'] ) ) {
+
+			$args['post__in'] = explode( ',', $atts['post_ids'] );
+
+		}
+
+		if ( ! empty( $atts['exclude_post_ids'] ) ) {
+
+			$args['post__not_in'] = explode( ',', $atts['exclude_post_ids'] );
+
+		}
+
 		if ( ! empty( $atts['by_time'] ) ) {
 
 			$args['date_query'] = array(
@@ -164,9 +212,9 @@ class Email_Shortcodes {
 
 		}
 
-		if ( ! empty( $atts['exclude'] ) ) {
+		if ( ! empty( $atts['exclude_categories'] ) ) {
 
-			$args['category__not_in'] = explode( ',', $atts['exclude'] );
+			$args['category__not_in'] = explode( ',', $atts['exclude_categories'] );
 
 		}
 
