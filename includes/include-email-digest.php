@@ -70,9 +70,6 @@ class Email_Digest {
 			'From: ' . $options['send_from_title'] . ' <' . $options['send_from'] . '>',
 			'Content-Type: text/html',
 			'Reply-To: ' . $options['reply_to'],
-			'Bcc: holly.sitzmann@wsu.edu',
-			'Bcc: jbickelhaupt@wsu.edu',
-			'Bcc: wassond@wsu.edu',
 			'charset=UTF-8',
 		);
 
